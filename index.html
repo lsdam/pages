@@ -1,8 +1,146 @@
-<html>
-  <head>
-    <title>pages</title>
-  </head>
-  <body>
-    <h1>hello!</h1>
-  </body>
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>☆집들이 초대짱★</title>
+</head>
+<body>
+
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    *::before, *::after {
+        content: '';
+        box-sizing: border-box;
+    }
+
+    html {
+        overflow-x: hidden;
+    }
+
+    body {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(#10416b, #000);
+    }
+
+    img {
+        vertical-align: top;
+    }
+
+    :root {
+        --cat-o-size: 210px;
+    }
+
+    .cat {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transition: opacity 1s ease-in-out;
+    }
+
+    body.is-done .cat {
+        opacity: 0;
+    }
+
+    .cat--sit {
+        top: 0;
+        left: 0;
+        animation: move-to-right 3s linear alternate infinite;
+    }
+
+    @keyframes move-to-right {
+        0% {
+            transform: translate(calc(var(--cat-o-size) / -2), 0);
+        }
+        100% {
+            transform: translate(100%, 0);
+        }
+    }
+
+    .cat--music {
+        animation: confuse 2s cubic-bezier(0.4, 0.23, 0.22, 0.74) alternate infinite;
+    }
+
+    @keyframes confuse {
+        0% {
+            transform: scale(100%) rotate(0deg);
+        }
+
+        50% {
+            transform: translate(40%, 40%);
+        }
+
+        100% {
+            transform: translate(60%, 60%) scale(190%) rotate(360deg);
+            transform-origin: 0 0;
+        }
+    }
+
+    .cat--ok {
+        animation: bounce 1s cubic-bezier(0.6, 0.21, 0.65, 1.01) alternate infinite;
+    }
+
+    @keyframes bounce {
+        0% {
+            transform: translate(0, calc(100% - var(--cat-o-size)));
+        }
+        100% {
+            transform: translate(0, calc(100% - var(--cat-o-size) * 0.8));
+        }
+    }
+
+    .chodaejjang {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 2s ease-in-out;
+    }
+
+    .chodaejjang img {
+        max-width: 50%;
+    }
+
+    body.is-done .chodaejjang {
+        opacity: 1;
+    }
+</style>
+
+<div class="cat cat--sit">
+    <img alt="" src="./assets/images/cat_sit.png">
+</div>
+
+<div class="cat cat--music">
+    <img alt="" src="./assets/images/cat_music.png">
+</div>
+
+<div class="cat cat--ok">
+    <img alt="" src="./assets/images/cat_ok.png">
+</div>
+
+<div class="chodaejjang">
+    <img alt="" src="./assets/images/chodaejjang.jpg">
+</div>
+
+<script>
+    const body = document.querySelector('body')
+    setTimeout(() => {
+        body.classList.add('is-done');
+    }, 4000)
+</script>
+
+</body>
 </html>
