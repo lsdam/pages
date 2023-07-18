@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>VoCaVoCa JJANG!!</title>
+    <link href="./assets/index.css" rel="stylesheet">
+    <script defer src="./assets/index.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="mean-on-off">
+        <label class="switch-content" for="mean-switch">
+            <div class="switch-box">
+                <input class="u-hidden" id="mean-switch" onchange="changeMeanSwitch(this)" type="checkbox">
+                <div class="switch">
+                    <div class="switch__toggle"></div>
+                </div>
+            </div>
+            <div class="switch-content__text">mean on/off</div>
+        </label>
+    </div>
+
+    <dl class="word-card" id="word-card">
+        <dt class="word-card__spelling" id="spelling"></dt>
+        <dd class="word-card__mean" id="mean"></dd>
+
+        <!--
+        <div class="clear-on-off">
+            <label class="switch-content" for="clear-switch">
+                <div class="switch-box">
+                    <input class="u-hidden" id="clear-switch" onchange="changeClearSwitch(this)" type="checkbox">
+                    <div class="switch">
+                        <div class="switch__toggle"></div>
+                    </div>
+                </div>
+                <div class="switch-content__text">clear!</div>
+            </label>
+        </div>
+        -->
+
+        <button class="word-card__btn word-card__btn--prev"
+                onclick="goToPrev()" type="button"><span class="u-hidden">이전</span></button>
+        <button class="word-card__btn word-card__btn--next"
+                onclick="goToNext()" type="button"><span class="u-hidden">다음</span></button>
+    </dl>
+</div>
+</body>
+</html>
