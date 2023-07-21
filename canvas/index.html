@@ -13,40 +13,129 @@
 
 <script>
     const canvas = document.getElementById('canvas')
-    const ctx = canvas.getContext('2d')
+    const context = canvas.getContext('2d')
+
+    const circleShape = {
+        type: 'circle',
+        x: 212,
+        y: 320,
+        size: 100,
+        color: 'orange',
+        isSelected: false,
+    }
+
+    const rectShape = {
+        type: 'rect',
+        x: 99,
+        y: 276,
+        size: 88,
+        color: 'blue',
+        isSelected: false,
+    }
+
+    const shapes = [
+        circleShape,
+        rectShape,
+    ]
+
+    let previousSelectedShape
+    let isDragging = false
+
 
     startup()
-    drawStuff()
+    clearCanvas()
+    drawCircle()
+    drawRect()
 
     function startup() {
+        resizeCanvas()
+
         canvas.addEventListener("touchstart", handleStart, false);
-        // canvas.addEventListener("touchend", handleEnd, false);
-        // canvas.addEventListener("touchcancel", handleCancel, false);
-        // canvas.addEventListener("touchmove", handleMove, false);
+        canvas.addEventListener("touchend", stopDragging, false);
+        canvas.addEventListener("touchcancel", stopDragging, false);
+        canvas.addEventListener("touchmove", handleMove, false);
+    }
+
+    function stopDragging() {
+        isDragging = false
     }
 
     function handleStart(e) {
-        // console.log(e, e.changedTouches)
-        const touches = e.changedTouches
+        e = e.changedTouches[0]
 
-        for (let i = 0; i < touches.length; i++) {
-            console.log(touches[i].pageX, touches[i].pageY)
+        let clickX = e.pageX - canvas.offsetLeft;
+        let clickY = e.pageY - canvas.offsetTop;
+
+        for (let i = shapes.length - 1; i >= 0; i--) {
+            let shape = shapes[i]
+
+            let distanceFromCenter = Math.sqrt(Math.pow(shape.x - clickX, 2) + Math.pow(shape.y - clickY, 2))
+
+            if (distanceFromCenter <= (shape.size / 2)) {
+                if (previousSelectedShape != null) previousSelectedShape.isSelected = false
+                previousSelectedShape = shape
+
+                shape.isSelected = true
+
+                isDragging = true
+
+                clearCanvas()
+                drawCircle()
+                drawRect()
+            }
         }
-        console.log(canvas.offsetLeft, canvas.offsetTop)
     }
 
     function handleMove(e) {
+        e = e.changedTouches[0]
+
+        if (isDragging == true) {
+            if (previousSelectedShape != null) {
+                let x = e.pageX - canvas.offsetLeft;
+                let y = e.pageY - canvas.offsetTop;
+
+                previousSelectedShape.x = x;
+                previousSelectedShape.y = y;
+
+                clearCanvas()
+                drawCircle();
+                drawRect()
+            }
+        }
     }
 
-    function drawCircle(x = 100, y = 100) {
-        ctx.arc(100, 100, 50, 0, 2 * Math.PI);
+    function clearCanvas() {
+        context.clearRect(0, 0, canvas.width, canvas.height)
     }
 
-    function drawStuff() {
-        ctx.beginPath()
-        drawCircle() // ctx.arc(100, 100, 50, 0, 2 * Math.PI);
-        ctx.fillStyle = 'orange'
-        ctx.fill()
+    function drawCircle() {
+        let x = circleShape.x
+        let y = circleShape.y
+
+        if (previousSelectedShape && previousSelectedShape.type === 'circle') {
+            x = previousSelectedShape.x
+            y = previousSelectedShape.y
+        }
+
+        context.beginPath()
+        context.arc(x, y, (circleShape.size / 2), 0, 2 * Math.PI)
+        context.fillStyle = circleShape.color
+        context.fill()
+    }
+
+    function drawRect() {
+        let x = rectShape.x
+        let y = rectShape.y
+
+        if (previousSelectedShape && previousSelectedShape.type === 'rect') {
+            x = previousSelectedShape.x
+            y = previousSelectedShape.y
+        }
+
+        context.beginPath()
+        context.rect(x, y, rectShape.size, rectShape.size)
+        context.fillStyle = rectShape.color
+        context.fill()
     }
 
     // resize the canvas to fill browser window dynamically
@@ -56,7 +145,8 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        drawStuff();
+        clearCanvas()
+        drawCircle()
     }
 </script>
 
