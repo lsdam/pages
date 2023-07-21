@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>Document</title>
+    <link href="index.css" rel="stylesheet">
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+
+    startup()
+    drawStuff()
+
+    function startup() {
+        canvas.addEventListener("touchstart", handleStart, false);
+        // canvas.addEventListener("touchend", handleEnd, false);
+        // canvas.addEventListener("touchcancel", handleCancel, false);
+        // canvas.addEventListener("touchmove", handleMove, false);
+    }
+
+    function handleStart(e) {
+        // console.log(e, e.changedTouches)
+        const touches = e.changedTouches
+
+        for (let i = 0; i < touches.length; i++) {
+            console.log(touches[i].pageX, touches[i].pageY)
+        }
+        console.log(canvas.offsetLeft, canvas.offsetTop)
+    }
+
+    function handleMove(e) {
+    }
+
+    function drawCircle(x = 100, y = 100) {
+        ctx.arc(100, 100, 50, 0, 2 * Math.PI);
+    }
+
+    function drawStuff() {
+        ctx.beginPath()
+        drawCircle() // ctx.arc(100, 100, 50, 0, 2 * Math.PI);
+        ctx.fillStyle = 'orange'
+        ctx.fill()
+    }
+
+    // resize the canvas to fill browser window dynamically
+    window.addEventListener('resize', resizeCanvas, false);
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        drawStuff();
+    }
+</script>
+
+</body>
+</html>
