@@ -15,12 +15,18 @@
     const canvas = document.getElementById('canvas')
     const context = canvas.getContext('2d')
 
+    const CIRCLE_SIZE = 100
+    const RECT_SIZE = 88
+
+    const DEFAULT_CIRCLE_SHAPE = {
+    }
+
     const circleShape = {
         type: 'circle',
         x: 212,
         y: 320,
         size: 100,
-        color: 'orange',
+        color: '#cecece',
         isSelected: false,
     }
 
@@ -29,7 +35,7 @@
         x: 99,
         y: 276,
         size: 88,
-        color: 'blue',
+        color: '#cecece',
         isSelected: false,
     }
 
@@ -44,8 +50,9 @@
 
     startup()
     clearCanvas()
-    drawCircle()
     drawRect()
+    drawCircle()
+
 
     function startup() {
         resizeCanvas()
@@ -79,8 +86,8 @@
                     isDragging = true
 
                     clearCanvas()
-                    drawCircle()
                     drawRect()
+                    drawCircle()
                 }
             } else {
                 let distanceFromCenter = Math.sqrt(Math.pow(shape.x - startX, 2) + Math.pow(shape.y - startY, 2))
@@ -94,8 +101,8 @@
                     isDragging = true
 
                     clearCanvas()
-                    drawCircle()
                     drawRect()
+                    drawCircle()
                 }
             }
         }
@@ -118,12 +125,24 @@
 
         console.log(x, y)
 
+        if (previousSelectedShape.type === 'rect') {
+            if (x < 0) x = 0
+            if (y < 0) y = 0
+            if (x > canvas.width - previousSelectedShape.size) x = canvas.width - previousSelectedShape.size
+            if (y > canvas.height - previousSelectedShape.size) y = canvas.height - previousSelectedShape.size
+        } else {
+            if (x < previousSelectedShape.size / 2) x = previousSelectedShape.size / 2
+            if (y < previousSelectedShape.size / 2) y = previousSelectedShape.size / 2
+            if (x > canvas.width - previousSelectedShape.size / 2) x = canvas.width - previousSelectedShape.size / 2
+            if (y > canvas.height - previousSelectedShape.size / 2) y = canvas.height - previousSelectedShape.size / 2
+        }
+
         previousSelectedShape.x = x
         previousSelectedShape.y = y
 
         clearCanvas()
-        drawCircle()
         drawRect()
+        drawCircle()
     }
 
     function clearCanvas() {
@@ -140,6 +159,14 @@
         }
 
         context.beginPath()
+        context.arc(circleShape.x, circleShape.y, (circleShape.size / 2), 0, 2 * Math.PI)
+        context.fillStyle = '#e4e4e4'
+        context.globalCompositeOperation = 'source-atop'
+        context.fill()
+        context.restore()
+
+        context.beginPath()
+        context.globalCompositeOperation = 'destination-over'
         context.arc(x, y, (circleShape.size / 2), 0, 2 * Math.PI)
         context.fillStyle = circleShape.color
         context.fill()
@@ -164,12 +191,14 @@
     window.addEventListener('resize', resizeCanvas, false);
 
     function resizeCanvas() {
+        console.log('resize')
+
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         clearCanvas()
-        drawCircle()
         drawRect()
+        drawCircle()
     }
 </script>
 
