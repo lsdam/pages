@@ -9,196 +9,302 @@
     <link href="index.css" rel="stylesheet">
 </head>
 <body>
+
+<canvas id="fixed-canvas"></canvas>
 <canvas id="canvas"></canvas>
 
 <script>
-    const canvas = document.getElementById('canvas')
-    const context = canvas.getContext('2d')
+    const canvas = Array.from(document.querySelectorAll('canvas'))
+    const context = canvas.map(el => el.getContext('2d'))
 
-    const CIRCLE_SIZE = 100
-    const RECT_SIZE = 88
+    const [fixedCanvas, activeCanvas] = canvas
+    const [fixedContext, movableContext] = context
 
-    const DEFAULT_CIRCLE_SHAPE = {
-    }
+    const TYPE_RECT = 'TYPE_RECT'
+    const TYPE_CIRCLE = 'TYPE_CIRCLE'
 
-    const circleShape = {
-        type: 'circle',
-        x: 212,
-        y: 320,
-        size: 100,
-        color: '#cecece',
-        isSelected: false,
-    }
+    const SIZE_RECT = 88
+    const SIZE_CIRCLE = 100
 
-    const rectShape = {
-        type: 'rect',
-        x: 99,
-        y: 276,
-        size: 88,
-        color: '#cecece',
-        isSelected: false,
-    }
+    const COLOR_FIXED_FIGURE = '#cecece'
+    const COLOR_FIGURE = 'orange'
 
-    const shapes = [
-        circleShape,
-        rectShape,
+    const FIXED_FIGURE_LIST = [
+        {
+            type: TYPE_RECT,
+            x: 99,
+            y: 276,
+            size: SIZE_RECT,
+            color: COLOR_FIXED_FIGURE,
+            isFixed: true,
+        },
+        {
+            type: TYPE_RECT,
+            x: 44,
+            y: 420,
+            x: 99,
+            y: 276,
+            size: SIZE_RECT,
+            color: COLOR_FIGURE,
+            isFixed: true,
+        },
+        // {
+        //     type: TYPE_CIRCLE,
+        //     x: 212,
+        //     y: 320,
+        //     size: SIZE_CIRCLE,
+        //     color: COLOR_FIXED_FIGURE,
+        //     isFixed: true,
+        //     composite: 'xor',
+        // },
+        {
+            type: TYPE_CIRCLE,
+            x: 212,
+            y: 320,
+            size: SIZE_CIRCLE,
+            color: COLOR_FIXED_FIGURE,
+            isFixed: true,
+            composite: 'xor',
+        },
+        // {
+        //     type: TYPE_CIRCLE,
+        //     x: 280,
+        //     y: 140,
+        //     size: SIZE_CIRCLE,
+        //     color: COLOR_FIGURE,
+        //     isFixed: true,
+        // },
     ]
 
-    let previousSelectedShape
+    const FIGURE_LIST = [
+        {
+            type: TYPE_RECT,
+            x: 99,
+            y: 276,
+            size: SIZE_RECT,
+            color: 'orange',
+            // color: '#cecece',
+            isSelected: false,
+        },
+        {
+            type: TYPE_CIRCLE,
+            x: 212,
+            y: 320,
+            size: SIZE_CIRCLE,
+            color: 'blue',
+            isSelected: false,
+            composite: 'xor',
+        },
+        // {
+        //     type: TYPE_CIRCLE,
+        //     x: 280,
+        //     y: 140,
+        //     x: 212,
+        //     y: 320,
+        //     size: SIZE_CIRCLE,
+        //     color: 'red',
+        //     isSelected: false,
+        //     composite: 'destination-atop',
+        // },
+    ]
+
+    let previousSelectedFigure
     let isDragging = false
 
-
     startup()
-    clearCanvas()
-    drawRect()
-    drawCircle()
-
 
     function startup() {
         resizeCanvas()
 
-        canvas.addEventListener("touchstart", handleStart, false);
-        canvas.addEventListener("touchend", stopDragging, false);
-        canvas.addEventListener("touchcancel", stopDragging, false);
-        canvas.addEventListener("touchmove", handleMove, false);
-    }
-
-    function stopDragging() {
-        isDragging = false
-    }
-
-    function handleStart(e) {
-        e = e.changedTouches[0]
-
-        let startX = e.pageX - canvas.offsetLeft
-        let startY = e.pageY - canvas.offsetTop
-
-        for (let i = shapes.length - 1; i >= 0; i--) {
-            let shape = shapes[i]
-
-            if (shape.type === 'rect') {
-                if (startX > rectShape.x && startX < (rectShape.x + rectShape.size) && startY > rectShape.y && startY < (rectShape.y + rectShape.size)) {
-                    if (previousSelectedShape != null) previousSelectedShape.isSelected = false
-                    previousSelectedShape = shape
-
-                    shape.isSelected = true
-
-                    isDragging = true
-
-                    clearCanvas()
-                    drawRect()
-                    drawCircle()
-                }
-            } else {
-                let distanceFromCenter = Math.sqrt(Math.pow(shape.x - startX, 2) + Math.pow(shape.y - startY, 2))
-
-                if (distanceFromCenter <= (shape.size / 2)) {
-                    if (previousSelectedShape != null) previousSelectedShape.isSelected = false
-                    previousSelectedShape = shape
-
-                    shape.isSelected = true
-
-                    isDragging = true
-
-                    clearCanvas()
-                    drawRect()
-                    drawCircle()
-                }
-            }
-        }
-    }
-
-    function handleMove(e) {
-        if (!isDragging || !previousSelectedShape) return
-
-        e = e.changedTouches[0]
-
-        let x, y;
-
-        if (previousSelectedShape.type === 'rect') {
-            x = e.pageX - canvas.offsetLeft - (rectShape.size / 2)
-            y = e.pageY - canvas.offsetTop - (rectShape.size / 2)
-        } else {
-            x = e.pageX - canvas.offsetLeft
-            y = e.pageY - canvas.offsetTop
-        }
-
-        console.log(x, y)
-
-        if (previousSelectedShape.type === 'rect') {
-            if (x < 0) x = 0
-            if (y < 0) y = 0
-            if (x > canvas.width - previousSelectedShape.size) x = canvas.width - previousSelectedShape.size
-            if (y > canvas.height - previousSelectedShape.size) y = canvas.height - previousSelectedShape.size
-        } else {
-            if (x < previousSelectedShape.size / 2) x = previousSelectedShape.size / 2
-            if (y < previousSelectedShape.size / 2) y = previousSelectedShape.size / 2
-            if (x > canvas.width - previousSelectedShape.size / 2) x = canvas.width - previousSelectedShape.size / 2
-            if (y > canvas.height - previousSelectedShape.size / 2) y = canvas.height - previousSelectedShape.size / 2
-        }
-
-        previousSelectedShape.x = x
-        previousSelectedShape.y = y
-
-        clearCanvas()
-        drawRect()
-        drawCircle()
-    }
-
-    function clearCanvas() {
-        context.clearRect(0, 0, canvas.width, canvas.height)
-    }
-
-    function drawCircle() {
-        let x = circleShape.x
-        let y = circleShape.y
-
-        if (previousSelectedShape && previousSelectedShape.type === 'circle') {
-            x = previousSelectedShape.x
-            y = previousSelectedShape.y
-        }
-
-        context.beginPath()
-        context.arc(circleShape.x, circleShape.y, (circleShape.size / 2), 0, 2 * Math.PI)
-        context.fillStyle = '#e4e4e4'
-        context.globalCompositeOperation = 'source-atop'
-        context.fill()
-        context.restore()
-
-        context.beginPath()
-        context.globalCompositeOperation = 'destination-over'
-        context.arc(x, y, (circleShape.size / 2), 0, 2 * Math.PI)
-        context.fillStyle = circleShape.color
-        context.fill()
-    }
-
-    function drawRect() {
-        let x = rectShape.x
-        let y = rectShape.y
-
-        if (previousSelectedShape && previousSelectedShape.type === 'rect') {
-            x = previousSelectedShape.x
-            y = previousSelectedShape.y
-        }
-
-        context.beginPath()
-        context.rect(x, y, rectShape.size, rectShape.size)
-        context.fillStyle = rectShape.color
-        context.fill()
+        activeCanvas.addEventListener("touchstart", handleStart, false)
+        activeCanvas.addEventListener("touchend", stopDragging, false)
+        activeCanvas.addEventListener("touchcancel", stopDragging, false)
+        activeCanvas.addEventListener("touchmove", handleMove, false)
     }
 
     // resize the canvas to fill browser window dynamically
     window.addEventListener('resize', resizeCanvas, false);
 
     function resizeCanvas() {
-        console.log('resize')
+        canvas.forEach(el => {
+            el.width = window.innerWidth
+            el.height = window.innerHeight
+        })
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        initCanvas()
 
-        clearCanvas()
-        drawRect()
-        drawCircle()
+        FIXED_FIGURE_LIST.forEach(figure => {
+            switch (figure.type) {
+                case TYPE_RECT:
+                    drawRect(figure)
+                    break
+                case TYPE_CIRCLE:
+                    drawCircle(figure)
+                    break
+            }
+        })
+
+        FIGURE_LIST.forEach(figure => {
+            switch (figure.type) {
+                case TYPE_RECT:
+                    drawRect(figure)
+                    break
+                case TYPE_CIRCLE:
+                    drawCircle(figure)
+                    break
+            }
+        })
+    }
+
+    function initCanvas() {
+        // context.forEach(el => {
+        //     el.clearRect(0, 0, fixedCanvas.width, fixedCanvas.height)
+        // })
+        movableContext.clearRect(0, 0, fixedCanvas.width, fixedCanvas.height)
+
+        // FIXED_FIGURE_LIST.forEach(figure => {
+        //     switch (figure.type) {
+        //         case TYPE_RECT:
+        //             drawRect(figure)
+        //             break
+        //         case TYPE_CIRCLE:
+        //             drawCircle(figure)
+        //             break
+        //     }
+        // })
+    }
+
+    function stopDragging() {
+        isDragging = false
+    }
+
+    function isRect(figure, startX, startY) {
+        const {x, y, size} = figure
+
+        return startX > x && startX < (x + size) && startY > y && startY < (y + size)
+    }
+
+    function isCircle(figure, startX, startY) {
+        const {x, y, size} = figure
+
+        let distanceFromCenter = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2))
+
+        return distanceFromCenter <= (size / 2)
+    }
+
+    function changeFigureStatus(figure) {
+        if (previousSelectedFigure != null) previousSelectedFigure.isSelected = false
+
+        previousSelectedFigure = figure
+
+        figure.isSelected = true
+
+        isDragging = true
+    }
+
+    function handleStart(e) {
+        e = e.changedTouches[0]
+
+        let startX = e.pageX - activeCanvas.offsetLeft
+        let startY = e.pageY - activeCanvas.offsetTop
+
+        initCanvas()
+
+        FIGURE_LIST
+            .forEach(figure => {
+                switch (figure.type) {
+                    case TYPE_RECT:
+                        if (isRect(figure, startX, startY)) changeFigureStatus(figure)
+
+                        drawRect(figure)
+
+                        break
+                    case TYPE_CIRCLE:
+                        if (isCircle(figure, startX, startY)) changeFigureStatus(figure)
+
+                        drawCircle(figure)
+
+                        break
+                }
+            })
+    }
+
+    function handleMove(e) {
+        if (!isDragging || !previousSelectedFigure) return
+
+        e = e.changedTouches[0]
+
+        let x, y;
+
+        initCanvas()
+
+        const {type} = previousSelectedFigure
+
+        FIGURE_LIST
+            .forEach(figure => {
+                switch (figure.type) {
+                    case TYPE_RECT:
+
+                        x = e.pageX - activeCanvas.offsetLeft - (figure.size / 2)
+                        y = e.pageY - activeCanvas.offsetTop - (figure.size / 2)
+
+                        if (x < 0) x = 0
+                        if (y < 0) y = 0
+                        if (x > activeCanvas.width - previousSelectedFigure.size) x = activeCanvas.width - previousSelectedFigure.size
+                        if (y > activeCanvas.height - previousSelectedFigure.size) y = activeCanvas.height - previousSelectedFigure.size
+
+                        if (type === TYPE_RECT) {
+                            previousSelectedFigure.x = x
+                            previousSelectedFigure.y = y
+                        }
+
+                        drawRect(figure)
+
+                        break
+                    case TYPE_CIRCLE:
+
+                        x = e.pageX - activeCanvas.offsetLeft
+                        y = e.pageY - activeCanvas.offsetTop
+
+                        if (x < previousSelectedFigure.size / 2) x = previousSelectedFigure.size / 2
+                        if (y < previousSelectedFigure.size / 2) y = previousSelectedFigure.size / 2
+                        if (x > activeCanvas.width - previousSelectedFigure.size / 2) x = activeCanvas.width - previousSelectedFigure.size / 2
+                        if (y > activeCanvas.height - previousSelectedFigure.size / 2) y = activeCanvas.height - previousSelectedFigure.size / 2
+
+                        if (type === TYPE_CIRCLE) {
+                            previousSelectedFigure.x = x
+                            previousSelectedFigure.y = y
+                        }
+
+                        drawCircle(figure)
+
+                        break
+                }
+            })
+    }
+
+    function drawRect(figure) {
+        const {x, y, size, color} = figure
+
+        const ctx = figure.isFixed ? fixedContext : movableContext
+
+        ctx.beginPath()
+        ctx.rect(x, y, size, size)
+        ctx.fillStyle = color
+        ctx.globalCompositeOperation = figure.composite ?? 'source-over'
+        ctx.fill()
+    }
+
+    function drawCircle(figure) {
+        const {x, y, size, color} = figure
+
+        const ctx = figure.isFixed ? fixedContext : movableContext
+
+        ctx.beginPath()
+        ctx.arc(x, y, size / 2, 0, 2 * Math.PI)
+        ctx.fillStyle = color
+        ctx.globalCompositeOperation = figure.composite ?? 'source-over'
+        ctx.fill()
     }
 </script>
 
