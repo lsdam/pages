@@ -17,3 +17,13 @@ html, body {
 body {
     background: #e4e4e4;
 }
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.front-canvas {
+    z-index: 10;
+}
