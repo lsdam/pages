@@ -40,13 +40,54 @@
 
     let isComplete = false
 
+    let list = []
+    if (currentType === TYPE_RECT) {
+        list = [
+            {
+                type: TYPE_CIRCLE,
+                x: 0,
+                y: 0,
+                size: SIZE_CIRCLE,
+                color: COLOR_ORANGE,
+            },
+            {
+                type: TYPE_RECT,
+                x: 0,
+                y: 0,
+                size: SIZE_RECT,
+                color: COLOR_ORANGE,
+                composite: 'source-out',
+                isSelected: false,
+            },
+        ]
+    } else {
+        list = [
+            {
+                type: TYPE_RECT,
+                x: 0,
+                y: 0,
+                size: SIZE_RECT,
+                color: COLOR_ORANGE,
+            },
+            {
+                type: TYPE_CIRCLE,
+                x: 0,
+                y: 0,
+                size: SIZE_CIRCLE,
+                color: COLOR_ORANGE,
+                composite: 'source-out',
+                isSelected: false,
+            },
+        ]
+    }
+
     const FIGURE_LIST = [
         {
             type: TYPE_RECT,
             x: 0,
             y: 0,
             size: SIZE_RECT,
-            color: COLOR_ORANGE,
+            color: currentType === TYPE_CIRCLE ? COLOR_ORANGE : COLOR_GREY,
             isBack: true,
         },
         {
@@ -54,26 +95,11 @@
             x: 0,
             y: 0,
             size: SIZE_CIRCLE,
-            color: COLOR_GREY,
+            color: currentType === TYPE_CIRCLE ? COLOR_GREY : COLOR_ORANGE,
             isBack: true,
             composite: 'xor',
         },
-        {
-            type: TYPE_RECT,
-            x: 0,
-            y: 0,
-            size: SIZE_RECT,
-            color: COLOR_ORANGE,
-        },
-        {
-            type: TYPE_CIRCLE,
-            x: 0,
-            y: 0,
-            size: SIZE_CIRCLE,
-            color: COLOR_ORANGE,
-            isSelected: false,
-            composite: 'source-out',
-        },
+        ...list,
     ]
 
     let previousSelectedFigure
@@ -102,6 +128,15 @@
         FIGURE_LIST.forEach(el => {
             if (el.isSelected === undefined && el.type === TYPE_RECT) setCalcRectPosition(el)
             if (el.isSelected === undefined && el.type === TYPE_CIRCLE) setCalcCirclePosition(el)
+
+            if (el.isSelected !== undefined && el.type === TYPE_RECT) {
+                if (isComplete) {
+                    setCalcRectPosition(el)
+                } else {
+                    el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2) - 40
+                    el.y = Math.round((window.innerHeight / 2) - el.size / 2) + 140
+                }
+            }
 
             if (el.isSelected !== undefined && el.type === TYPE_CIRCLE) {
                 if (isComplete) {
@@ -144,12 +179,10 @@
     }
 
     function stopDragging(e) {
-        if (currentType === TYPE_CIRCLE) {
-            const r = SIZE_CIRCLE / 2
-
+        if (previousSelectedFigure) {
             const {x: stX, y: stY} = FIGURE_LIST.find(el => el.isBack && el.type === currentType)
             const {x: pX, y: pY} = previousSelectedFigure
-
+            const r = currentType === TYPE_RECT ? SIZE_RECT / 2 : SIZE_CIRCLE / 2
 
             if ((pX >= stX - r && pX <= stX + r) && (pY >= stY - r && pY <= stY + r)) {
                 FIGURE_LIST.find(el => !el.isBack && el.type === currentType).x = stX
