@@ -20,41 +20,41 @@
     const [backCanvas, frontCanvas] = canvas
     const [backContext, frontContext] = context
 
-    const TYPE_RECT = 'TYPE_RECT'
-    const TYPE_CIRCLE = 'TYPE_CIRCLE'
+    const TYPE_SQUARE = 'TYPE_SQUARE'
+    const TYPE_ROUND = 'TYPE_ROUND'
 
     const COLOR_GREY = '#cecece'
     const COLOR_ORANGE = 'orange'
 
-    const SIZE_RECT = 88
-    const SIZE_CIRCLE = 100
-    const SIZE_COMBINED = (SIZE_CIRCLE / 4 * 3) + SIZE_RECT
+    const SIZE_SQUARE = 88
+    const SIZE_ROUND = 100
+    const SIZE_COMBINED = (SIZE_ROUND / 4 * 3) + SIZE_SQUARE
 
     const URL_QUERY_TYPE = 'type'
     const url = new URL(location.href)
     const urlType = url.searchParams.get(URL_QUERY_TYPE)
     let currentType
 
-    if (!urlType || ![TYPE_RECT, TYPE_CIRCLE].includes(urlType) || urlType === TYPE_RECT) currentType = TYPE_RECT
-    if (urlType === TYPE_CIRCLE) currentType = TYPE_CIRCLE
+    if (!urlType || ![TYPE_SQUARE, TYPE_ROUND].includes(urlType) || urlType === TYPE_SQUARE) currentType = TYPE_SQUARE
+    if (urlType === TYPE_ROUND) currentType = TYPE_ROUND
 
     let isComplete = false
 
     let list = []
-    if (currentType === TYPE_RECT) {
+    if (currentType === TYPE_SQUARE) {
         list = [
             {
-                type: TYPE_CIRCLE,
+                type: TYPE_ROUND,
                 x: 0,
                 y: 0,
-                size: SIZE_CIRCLE,
+                size: SIZE_ROUND,
                 color: COLOR_ORANGE,
             },
             {
-                type: TYPE_RECT,
+                type: TYPE_SQUARE,
                 x: 0,
                 y: 0,
-                size: SIZE_RECT,
+                size: SIZE_SQUARE,
                 color: COLOR_ORANGE,
                 composite: 'source-out',
                 isSelected: false,
@@ -63,17 +63,17 @@
     } else {
         list = [
             {
-                type: TYPE_RECT,
+                type: TYPE_SQUARE,
                 x: 0,
                 y: 0,
-                size: SIZE_RECT,
+                size: SIZE_SQUARE,
                 color: COLOR_ORANGE,
             },
             {
-                type: TYPE_CIRCLE,
+                type: TYPE_ROUND,
                 x: 0,
                 y: 0,
-                size: SIZE_CIRCLE,
+                size: SIZE_ROUND,
                 color: COLOR_ORANGE,
                 composite: 'source-out',
                 isSelected: false,
@@ -83,19 +83,19 @@
 
     const FIGURE_LIST = [
         {
-            type: TYPE_RECT,
+            type: TYPE_SQUARE,
             x: 0,
             y: 0,
-            size: SIZE_RECT,
-            color: currentType === TYPE_CIRCLE ? COLOR_ORANGE : COLOR_GREY,
+            size: SIZE_SQUARE,
+            color: currentType === TYPE_ROUND ? COLOR_ORANGE : COLOR_GREY,
             isBack: true,
         },
         {
-            type: TYPE_CIRCLE,
+            type: TYPE_ROUND,
             x: 0,
             y: 0,
-            size: SIZE_CIRCLE,
-            color: currentType === TYPE_CIRCLE ? COLOR_GREY : COLOR_ORANGE,
+            size: SIZE_ROUND,
+            color: currentType === TYPE_ROUND ? COLOR_GREY : COLOR_ORANGE,
             isBack: true,
             composite: 'xor',
         },
@@ -126,23 +126,23 @@
 
         // 임시코드
         FIGURE_LIST.forEach(el => {
-            if (el.isSelected === undefined && el.type === TYPE_RECT) setCalcRectPosition(el)
-            if (el.isSelected === undefined && el.type === TYPE_CIRCLE) setCalcCirclePosition(el)
+            if (el.isSelected === undefined && el.type === TYPE_SQUARE) setCalcSquarePosition(el)
+            if (el.isSelected === undefined && el.type === TYPE_ROUND) setCalcRoundPosition(el)
 
-            if (el.isSelected !== undefined && el.type === TYPE_RECT) {
+            if (el.isSelected !== undefined && el.type === TYPE_SQUARE) {
                 if (isComplete) {
-                    setCalcRectPosition(el)
+                    setCalcSquarePosition(el)
                 } else {
                     el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2) - 40
                     el.y = Math.round((window.innerHeight / 2) - el.size / 2) + 140
                 }
             }
 
-            if (el.isSelected !== undefined && el.type === TYPE_CIRCLE) {
+            if (el.isSelected !== undefined && el.type === TYPE_ROUND) {
                 if (isComplete) {
-                    setCalcCirclePosition(el)
+                    setCalcRoundPosition(el)
                 } else {
-                    el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2) + (SIZE_RECT + (el.size / 4)) + 40
+                    el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2) + (SIZE_SQUARE + (el.size / 4)) + 40
                     el.y = window.innerHeight / 2 + 140
                 }
             }
@@ -154,11 +154,11 @@
 
         FIGURE_LIST.forEach(figure => {
             switch (figure.type) {
-                case TYPE_RECT:
-                    drawRect(figure)
+                case TYPE_SQUARE:
+                    drawSquare(figure)
                     break
-                case TYPE_CIRCLE:
-                    drawCircle(figure)
+                case TYPE_ROUND:
+                    drawRound(figure)
                     break
             }
         })
@@ -168,13 +168,13 @@
         frontContext.clearRect(0, 0, backCanvas.width, backCanvas.height)
     }
 
-    function setCalcRectPosition(el) {
+    function setCalcSquarePosition(el) {
         el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2)
         el.y = Math.round((window.innerHeight / 2) - el.size / 2)
     }
 
-    function setCalcCirclePosition(el) {
-        el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2) + (SIZE_RECT + (el.size / 4))
+    function setCalcRoundPosition(el) {
+        el.x = Math.round((window.innerWidth - SIZE_COMBINED) / 2) + (SIZE_SQUARE + (el.size / 4))
         el.y = Math.round(window.innerHeight / 2)
     }
 
@@ -182,7 +182,7 @@
         if (previousSelectedFigure) {
             const {x: stX, y: stY} = FIGURE_LIST.find(el => el.isBack && el.type === currentType)
             const {x: pX, y: pY} = previousSelectedFigure
-            const r = currentType === TYPE_RECT ? SIZE_RECT / 2 : SIZE_CIRCLE / 2
+            const r = currentType === TYPE_SQUARE ? SIZE_SQUARE / 2 : SIZE_ROUND / 2
 
             if ((pX >= stX - r && pX <= stX + r) && (pY >= stY - r && pY <= stY + r)) {
                 FIGURE_LIST.find(el => !el.isBack && el.type === currentType).x = stX
@@ -197,13 +197,13 @@
         isDragging = false
     }
 
-    function isRect(figure, startX, startY) {
+    function isSquare(figure, startX, startY) {
         const {x, y, size} = figure
 
         return startX > x && startX < (x + size) && startY > y && startY < (y + size)
     }
 
-    function isCircle(figure, startX, startY) {
+    function isRound(figure, startX, startY) {
         const {x, y, size} = figure
 
         let distanceFromCenter = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2))
@@ -234,16 +234,16 @@
         FIGURE_LIST.filter(el => !el.isBack)
             .forEach(figure => {
                 switch (figure.type) {
-                    case TYPE_RECT:
-                        if (isRect(figure, startX, startY)) changeFigureStatus(figure)
+                    case TYPE_SQUARE:
+                        if (isSquare(figure, startX, startY)) changeFigureStatus(figure)
 
-                        drawRect(figure)
+                        drawSquare(figure)
 
                         break
-                    case TYPE_CIRCLE:
-                        if (isCircle(figure, startX, startY)) changeFigureStatus(figure)
+                    case TYPE_ROUND:
+                        if (isRound(figure, startX, startY)) changeFigureStatus(figure)
 
-                        drawCircle(figure)
+                        drawRound(figure)
 
                         break
                 }
@@ -264,8 +264,8 @@
         FIGURE_LIST.filter(el => !el.isBack)
             .forEach(figure => {
                 switch (figure.type) {
-                    case TYPE_RECT:
-                        if (currentType === TYPE_RECT) {
+                    case TYPE_SQUARE:
+                        if (currentType === TYPE_SQUARE) {
                             x = e.pageX - frontCanvas.offsetLeft - (figure.size / 2)
                             y = e.pageY - frontCanvas.offsetTop - (figure.size / 2)
 
@@ -274,17 +274,17 @@
                             if (x > frontCanvas.width - previousSelectedFigure.size) x = frontCanvas.width - previousSelectedFigure.size
                             if (y > frontCanvas.height - previousSelectedFigure.size) y = frontCanvas.height - previousSelectedFigure.size
 
-                            if (type === TYPE_RECT) {
+                            if (type === TYPE_SQUARE) {
                                 previousSelectedFigure.x = x
                                 previousSelectedFigure.y = y
                             }
                         }
 
-                        drawRect(figure)
+                        drawSquare(figure)
 
                         break
-                    case TYPE_CIRCLE:
-                        if (currentType === TYPE_CIRCLE) {
+                    case TYPE_ROUND:
+                        if (currentType === TYPE_ROUND) {
                             x = e.pageX - frontCanvas.offsetLeft
                             y = e.pageY - frontCanvas.offsetTop
 
@@ -293,20 +293,20 @@
                             if (x > frontCanvas.width - previousSelectedFigure.size / 2) x = frontCanvas.width - previousSelectedFigure.size / 2
                             if (y > frontCanvas.height - previousSelectedFigure.size / 2) y = frontCanvas.height - previousSelectedFigure.size / 2
 
-                            if (type === TYPE_CIRCLE) {
+                            if (type === TYPE_ROUND) {
                                 previousSelectedFigure.x = x
                                 previousSelectedFigure.y = y
                             }
                         }
 
-                        drawCircle(figure)
+                        drawRound(figure)
 
                         break
                 }
             })
     }
 
-    function drawRect(figure) {
+    function drawSquare(figure) {
         const {x, y, size, color} = figure
 
         const ctx = figure.isBack ? backContext : frontContext
@@ -318,7 +318,7 @@
         ctx.fill()
     }
 
-    function drawCircle(figure) {
+    function drawRound(figure) {
         const {x, y, size, color} = figure
 
         const ctx = figure.isBack ? backContext : frontContext
